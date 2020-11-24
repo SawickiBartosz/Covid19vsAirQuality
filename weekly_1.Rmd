@@ -1,0 +1,103 @@
+---
+title: "Weekly 1"
+author: "Konstanty Kraszewski, Jakub Kozieł, Bartosz Sawicki"
+date: "11/24/2020"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(ggplot2)
+library(lemon)
+library(readr)
+library(tidyr)
+
+
+covid <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
+
+yesterday <- Sys.Date() -1
+
+aqcin <- read_csv("waqi-covid-2020.csv", skip = 4) # omijamy pierwsze 4 wiersze, jakieś nagłówki
+
+apple_mobility_raw <- read.csv("applemobilitytrends-2020-11-22.csv")
+
+apple_mobility <- apple_mobility_raw %>% 
+  pivot_longer(-c(1:6), names_to = "Date_raw") %>% 
+  mutate(Date = as.Date(substr(Date_raw,2,100000000L), format = "%Y.%m.%d")) %>%
+  select(region, transportation_type,sub.region,Date,value)
+
+
+```
+
+# Wybrane zbiory danych
+
+1. [ourworldindata.org/coronavirus](https://ourworldindata.org/coronavirus)
+
+Źródło podstawowe z wieloma danymi na temat pandemii.
+
+2. [aqicn.org/data-platform/covid19](https://aqicn.org/data-platform/covid19/?fbclid=IwAR1ta3cmXjcGRdwDYwBGcP4Unbyj3Z4sJkA-chvCtRJDV5SDvn_PRniIYS4)
+
+Zbiór danych World Air Quality Index przedstawia wartości różnych wskaźników zanieczyszczeń, takich jak PM$_{10}$, a także informacje meteorologiczne z danego dnia. Dane są zbierane w większych miastach na całym świecie.
+
+3. [covid19.apple.com/mobility](https://covid19.apple.com/mobility?fbclid=IwAR2E-U7UEvbENdhjq28y1EhL9EbelPBs5s0SbKaiYrM1K9gzbHpviYd9K3U)
+
+Zbiór danych zawierający raporty o trendach mobilności związane z COVID-19. Odzwierciedlają one zapytania o wskazówki dojazdu w Mapach Apple według środka transportu w wielu krajach.
+
+# Postawione pytania
+
+1. Co pandemia zmieniła na lepsze?
+Przyjrzenie się pozytywnym efektom obecnej sytuacji.
+
+2. Czy liczba wypadków i kolizji drogowych zmalała?
+Sprawdzenie wpływu epidemii na sytuację na drogach.
+
+3. Czy zanieczyszczenie powietrza zmalało?
+Zbadanie zależności pomiędzy pandemią a obecnością zanieczyszczeń w miastach.
+
+4. Jak polityka państwa wpływa na zachowanie obywateli? 
+Czy zwiększanie obostrzeń ma wpływ na działania zwykłych ludzi?
+
+# Zbiór danych Our World in Data
+
+## Stringency Index dla Polski
+```{r str_index, echo=FALSE, warning=FALSE}
+
+covid %>% filter(location == "Poland") %>% ggplot(aes(x = date, y = stringency_index)) + geom_line(aes(group = location))
+
+```
+
+
+# Zbiór danych Air Quality Open Data Platform Worldwide COVID-19 dataset
+
+```{r aqcin, render=lemon_print}
+head(aqcin[1:7])
+```
+
+# Wykres mediany dobowego stężenia NO2 w Warszawie i Krakowie
+
+```{r no2, warning=FALSE}
+aqcin %>% 
+  filter(Country == "PL") %>%
+  filter(Specie == "no2") %>% 
+  filter(City == c("Warsaw", "Kraków")) %>%
+  ggplot(aes(x = Date)) + 
+  geom_line(aes(y = median, group = City, color = City))
+```
+
+# Zbiór danych Apple Mobility
+
+```{r apple_mobility,render=lemon_print}
+
+head(apple_mobility_raw[c(2,3,7,140)])
+```
+
+
+# Wykres mobilności dla Polski
+```{r mobility_plot, echo=FALSE, warning=FALSE}
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+apple_mobility %>% filter(region == "Poland") %>%
+  ggplot(aes(x = Date, y = value)) + geom_line(aes(group = transportation_type, color = transportation_type)) + scale_colour_brewer(palette = "Set2")
+
+```

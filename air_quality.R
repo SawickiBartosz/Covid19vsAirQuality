@@ -46,3 +46,10 @@ ggplot(data = data, aes(x = date)) + geom_line(aes(y = mean, group = mean))
 
 raw_data <- read_csv("waqi-covid-2020.csv", skip = 4) # omijamy pierwsze 4 wiersze, jakieś nagłówki
 
+raw_data %>% 
+  filter(Country == "PL") %>%
+  filter(Specie == "no2") %>% 
+  filter(City == c("Warsaw", "Kraków")) %>%
+  ggplot(aes(x = Date)) + 
+  geom_line(aes(y = median, group = City, color = City))
+
