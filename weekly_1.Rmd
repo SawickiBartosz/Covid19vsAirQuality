@@ -12,6 +12,10 @@ library(ggplot2)
 library(lemon)
 library(readr)
 library(tidyr)
+library(data.table)
+library(maps)
+library(rjson)
+
 
 
 covid <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
@@ -26,6 +30,12 @@ apple_mobility <- apple_mobility_raw %>%
   pivot_longer(-c(1:6), names_to = "Date_raw") %>% 
   mutate(Date = as.Date(substr(Date_raw,2,100000000L), format = "%Y.%m.%d")) %>%
   select(region, transportation_type,sub.region,Date,value)
+
+cities <- fromJSON(file = "airquality-covid19-cities.json")$data
+
+geos <- transpose(as.data.frame(sapply(lapply(cities,'[[', "Place"), '[[',"geo")))
+
+world <- map_data("world")
 
 
 ```
@@ -73,6 +83,16 @@ covid %>% filter(location == "Poland") %>% ggplot(aes(x = date, y = stringency_i
 ```{r aqcin, render=lemon_print}
 head(aqcin[1:7])
 ```
+
+# Miasta w tym zbiorze
+
+```{r, warning=FALSE, echo=FALSE}
+ggplot() + geom_polygon(data = world,aes(x=long, y = lat, group = group), color = "white" )+ 
+  geom_point(data = geos, aes(x = V2, y = V1, color = "red")) +
+  coord_fixed(1.3)+
+  guides(fill=FALSE) 
+```
+
 
 # Wykres mediany dobowego stężenia NO2 w Warszawie i Krakowie
 

@@ -6,6 +6,9 @@ library(methods)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(rjson)
+library(data.table)
+library(maps)
 
 # Te dane koncza sie na styczniu 2020 chyba nieuzywalne
 source_links <- c("https://ereporting.blob.core.windows.net/downloadservice/PL_8_29920_2019_timeseries.csv", 
@@ -53,3 +56,12 @@ raw_data %>%
   ggplot(aes(x = Date)) + 
   geom_line(aes(y = median, group = City, color = City))
 
+cities <- fromJSON(file = "airquality-covid19-cities.json")$data
+
+geos <- transpose(as.data.frame(sapply(lapply(cities,'[[', "Place"), '[[',"geo")))
+
+world <- map_data("world")
+ggplot() + geom_polygon(data = world,aes(x=long, y = lat, group = group), color = "white" )+ 
+  geom_point(data = geos, aes(x = V2, y = V1, color = "red")) +
+  coord_fixed(1.3)+
+  guides(fill=FALSE) 
