@@ -1,3 +1,16 @@
+library(XML)
+library(methods)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(rjson)
+library(data.table)
+library(readr)
+library(maps)
+library(RJSONIO)
+library(sp)
+library(maptools)
+
 raw_data <- read_csv("waqi-covid-2020.csv", skip = 4) # omijamy pierwsze 4 wiersze, jakieś nagłówki
 raw_data <- rbind(raw_data,read_csv("waqi-covid-2019Q1.csv", skip = 4),read_csv("waqi-covid-2019Q2.csv", skip = 4))
 
