@@ -224,3 +224,38 @@ raw_data_2020 %>%
 - większość miast odnotowała poprawę jakości powietrza.
 - nie widać dużego związku jakości powietrza z wprowadzanymi ograniczeniami
 
+# Porównanie liczby nowych zakażeń ze wskaźnikiem PM10
+
+```{r, warning=FALSE, echo=TRUE}
+aqcin <- read_csv("waqi-covid-2020.csv", skip = 4)
+aqcin %>%
+  filter(Country=="PL", Specie=="pm10") %>%
+  group_by(Date) %>%
+  summarise(pm10 = mean(median))  -> data
+data$Date = as.Date(data$Date)
+data %>%
+  inner_join(filter(covid_df, location=="Poland"),
+             by = c("Date" = "Date")) %>%
+  select(Date, pm10, new_cases) -> data
+ggplot(data, aes(x = Date)) +
+  geom_line(aes(y = new_cases), color = "blue") +
+  geom_line(aes(y = pm10 * 30), color = "red") +
+  scale_y_continuous(name = "nowe przypadki (niebieski)",
+                     sec.axis = sec_axis( trans=~./30,
+                                          name="PM10 (czerwony)"),
+                     limits = c(0, 1000),
+                     expand = expansion(mult = c(0, 0))
+  ) +
+  xlim(as.Date(c("2020-08-04", "2020-08-25"))) +
+  labs(title = "Porównanie liczby nowych zakażeń ze wskaźnikiem PM10",
+       x = "data") +
+  theme_bw()
+```
+
+
+
+### Wnioski
+
+- dwie łamane przyjmują bardzo podobne kształty
+- wskaźnik PM10 wydaje się "wyprzedzać" liczbę nowych zakażeń mniej więcej o jeden dzień
+- byćmoże wartości te są ze sobą powiązane
