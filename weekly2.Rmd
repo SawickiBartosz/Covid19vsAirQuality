@@ -239,11 +239,11 @@ data %>%
              by = c("Date" = "Date")) %>%
   select(Date, pm10, new_cases) -> data
 ggplot(data, aes(x = Date)) +
-  geom_line(aes(y = new_cases), color = "blue") +
-  geom_line(aes(y = pm10 * 30), color = "red") +
+  geom_line(aes(y = new_cases), color = "steelblue") +
+  geom_line(aes(y = pm10 * 30), color = "orange") +
   scale_y_continuous(name = "nowe przypadki (niebieski)",
                      sec.axis = sec_axis( trans=~./30,
-                                          name="PM10 (czerwony)"),
+                                          name="PM10 (pomarańczowy)"),
                      limits = c(0, 1000),
                      expand = expansion(mult = c(0, 0))
   ) +
