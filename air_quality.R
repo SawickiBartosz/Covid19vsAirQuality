@@ -60,7 +60,9 @@ raw_data %>%
   ggplot(aes(x = day)) + 
   geom_line(aes(y = median, group = year, color = year)) +
   facet_wrap(~City) + 
-  ggtitle("stężenie pm25 w polskich miastach")
+  ggtitle("PM25 concentration in polish cities") +
+  scale_color_manual(values = c("steelblue","orange")) +
+  theme_bw()
 
 cities <- fromJSON(file = "airquality-covid19-cities.json")$data
 
