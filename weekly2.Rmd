@@ -41,7 +41,7 @@ library(maptools)
 
 ## Wczytywanie danych
 
-```{r, cache =TRUE,include=FALSE}
+```{r, cache =TRUE,echo = TRUE, results = 'hide', message=FALSE}
 source("data_upload.R")
 ```
 
@@ -153,7 +153,8 @@ legend("bottomleft", inset=.02, title="Mean in year",
 ### Wnioski
 Na mapie w poszczególnych miastach zostały osadzone barploty, w których kolorem zgodnie z legendą ozaczone zostało średnie zanieczyszczenie NO2 w danym roku w pierwszym jego kwartale (informacja ta pojawi się na finalnej mapie). Z tej mapy wynika, że średni poziom tego zanieczyszczenia dla pierwszego kwartału roku 2020 jest niższy niż w roku ubiegłym. Możemy zatem wywyniskować, że jakość powietrza pod względem zaniczyszczenia NO2 wzrosła, a sytuacja epidemilogoiczna miała na to pozytywny wpływ. Przed pojawieniem się na plakacie, mapa prawdopodbnie zostanie poddana obróbce graficznej, aby pokazać jaką wielkość reprezentuje dany słupek. Analizie w analgoczine sposób mogą też zostać poddane inne zanieczysczenia.
 
-###Przykłady map wygenerowane dla innych zanieczyszczeń.
+
+### Przykłady map wygenerowane dla innych zanieczyszczeń.
 
 ```{r}
 
