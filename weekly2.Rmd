@@ -31,44 +31,27 @@ library(dplyr)
 library(tidyr)
 library(rjson)
 library(data.table)
-library(maps)
 library(readr)
+library(maps)
+library(RJSONIO)
+library(sp)
+library(maptools)
+
 ```
 
 ## Wczytywanie danych
 
-```{r, eval = FALSE, echo=TRUE}
-raw_data <- read_csv("waqi-covid-2020.csv", skip = 4) # omijamy pierwsze 4 wiersze, jakieś nagłówki
-raw_data <- rbind(raw_data,read_csv("waqi-covid-2019Q1.csv", skip = 4),
-                  read_csv("waqi-covid-2019Q2.csv", skip = 4))
-
-iso_codes<-read_csv("https://gist.githubusercontent.com/tadast/8827699/raw/f5cac3d42d16b78348610fc4ec301e9234f82821/countries_codes_and_coordinates.csv")
-
-raw_data_2019 <- rbind(read_csv("waqi-covid-2019Q1.csv", skip = 4),
-                  read_csv("waqi-covid-2019Q2.csv", skip = 4),
-                  read_csv("waqi-covid-2019Q3.csv", skip = 4),
-                  read_csv("waqi-covid-2019Q4.csv", skip = 4))
-
-means_2019 <- raw_data_2019 %>%
-  filter(Specie == "aqi") %>% 
-  group_by(City) %>%
-  summarize(mean_2019 = mean(median))
-
-raw_data_2020 <- read_csv("waqi-covid-2020.csv", skip=4) %>%
-  filter(Specie == "aqi")
-
-covid_df <- read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>% 
-  mutate(Date = as.Date(date))
+```{r, cache =TRUE,include=FALSE}
+source("data_upload.R")
 ```
 
 # Sytuacja w pierwszym półroczu 2020 w Polsce
 
-```{r, warning=FALSE,eval=FALSE, echo=TRUE}
-
+```{r, warning=FALSE, echo=TRUE}
 raw_data %>% 
   filter(Country == "PL") %>%
   filter(Specie == "co") %>% 
-  filter(City != "Kielce",City != "Poznań",City != "Szczecin", City !="Tarnów")%>% #nie mają wszystkich lat
+  filter(City != "Tarnów",City!="Szczecin", City != "Kielce")%>% #nie mają wszystkich lat
   mutate(year = as.factor(year(Date)))%>%
   mutate(day = as.Date(format(Date, format = "%d-%m"),format = "%d-%m"))%>%
   filter(day<as.Date("01.07.2020", format = "%d.%m.%Y"))%>%
@@ -80,7 +63,7 @@ raw_data %>%
   theme_bw()
 ```
 
-![](co_plot.png)
+
 
 ### Wnioski
 
@@ -89,11 +72,7 @@ raw_data %>%
 
 # Przedstawienie danych na mapie
 
-```{r, eval = FALSE, echo=TRUE}
-library(maps)
-library(RJSONIO)
-library(sp)
-library(maptools)
+```{r, echo=TRUE}
 
 
 #wspolrzedne dla polskich miast
@@ -170,16 +149,55 @@ legend("bottomleft", inset=.02, title="Mean in year",
 
 ```
 
-![](mapa.png)
 
 ### Wnioski
-Na mapie w poszczególnych miastach zostały osadzone barploty, w których kolorem zgodnie z legendą ozaczone zostało średnie zanieczyszczenie NO2 w danym roku w pierwszym jego kwartale (informacja ta pojawi się na finalnej mapie). Z tej mapy wynika, że średni poziom tego zanieczyszczenia dla pierwszego kwartału roku 2020 jest niższy niż w roku ubiegłym. Możemy zatem wywyniskować, że jakość powietrza pod względem zaniczyszczenia NO2 wzrosła, a sytuacja epidemilogoiczna miała na to pozytywny wpływ.danych. Przed pojawieniem się na plakacie, mapa prawdopodbnie zostanie poddana obróbce graficznej, aby pokazać jaką wielkość reprezentuje dany słupek. Analizie w analgoczine sposób mogą też zostać poddane inne zanieczysczenia.
+Na mapie w poszczególnych miastach zostały osadzone barploty, w których kolorem zgodnie z legendą ozaczone zostało średnie zanieczyszczenie NO2 w danym roku w pierwszym jego kwartale (informacja ta pojawi się na finalnej mapie). Z tej mapy wynika, że średni poziom tego zanieczyszczenia dla pierwszego kwartału roku 2020 jest niższy niż w roku ubiegłym. Możemy zatem wywyniskować, że jakość powietrza pod względem zaniczyszczenia NO2 wzrosła, a sytuacja epidemilogoiczna miała na to pozytywny wpływ. Przed pojawieniem się na plakacie, mapa prawdopodbnie zostanie poddana obróbce graficznej, aby pokazać jaką wielkość reprezentuje dany słupek. Analizie w analgoczine sposób mogą też zostać poddane inne zanieczysczenia.
 
-Przykłady map wygenerowane dla innych zanieczyszczeń.
+###Przykłady map wygenerowane dla innych zanieczyszczeń.
 
-![](mapa_pm10.png)
+```{r}
 
-![](mapa_co.png)
+no2_2019 <- raw_data_2019 %>% filter(Country == c("PL")) %>% filter(Specie == "pm10") %>% group_by(City) %>% summarise(mean2019 = mean(median))
+no2_2020 <- raw_data_2020 %>% filter(Country == c("PL")) %>% filter(Specie == "pm10") %>% group_by(City) %>% summarise(mean2020 = mean(median))
+plot(Poland, axes=FALSE)
+
+for(i in 1:nrow(df)){
+  if(df[i, 1]=="Katowice") next
+  if(df[i, 1]=="Rybnik") next
+  
+  mapbars(x = c(df[i, 4], df[i, 5]), xllc=as.numeric(df[i, 2]), yllc=as.numeric(df[i, 3]) , barwidth=.17, maxheight=0.8 )
+}
+
+legend("bottomleft", inset=.02, title="Mean in year",
+       c("2019", "2020"), fill=c("steelblue","orange"), horiz=TRUE, cex=0.8)
+title(main = "PM10 pollution in Poland")
+
+```
+
+
+```{r}
+no2_2019 <- raw_data_2019 %>% filter(Country == c("PL")) %>% filter(Specie == "co") %>% group_by(City) %>% summarise(mean2019 = mean(median))
+no2_2020 <- raw_data_2020 %>% filter(Country == c("PL")) %>% filter(Specie == "co") %>% group_by(City) %>% summarise(mean2020 = mean(median))
+
+
+data("wrld_simpl")
+Poland <- subset(wrld_simpl, NAME=="Poland")
+
+plot(Poland, axes=FALSE)
+
+for(i in 1:nrow(df)){
+  if(df[i, 1]=="Katowice") next
+  if(df[i, 1]=="Rybnik") next
+  
+  mapbars(x = c(df[i, 4], df[i, 5]), xllc=as.numeric(df[i, 2]), yllc=as.numeric(df[i, 3]) , barwidth=.17, maxheight=0.8 )
+}
+
+legend("bottomleft", inset=.02, title="Mean in year",
+       c("2019", "2020"), fill=c("steelblue","orange"), horiz=TRUE, cex=0.8)
+title(main = "CO pollution in Poland")
+
+```
+
 
 ### Wnioski
 Przyglądając się teraz mapom wygenerowanym dla innych zanieczyszczeń, możemy uzyskać pełniejszy obraz sytuacji, a wysnuwane wnioski będą podobne jak dla omówionego wyżej NO2.
@@ -187,8 +205,9 @@ Przyglądając się teraz mapom wygenerowanym dla innych zanieczyszczeń, możem
 
 # Jakość powietrza w odniesieniu do średniej w miastach w 2019 roku
 
-```{r, warning=FALSE, eval = FALSE, echo=TRUE}
+```{r, warning=FALSE, echo=TRUE}
 raw_data_2020 %>%
+  filter(Specie == "aqi")%>%
   inner_join(means_2019, by = "City")%>%
   inner_join(iso_codes, by = c("Country"="Alpha-2 code"))%>%
   inner_join(covid_df, by = c("Date"="Date","Alpha-3 code"="iso_code")) %>%
@@ -199,7 +218,6 @@ raw_data_2020 %>%
 
 ```
 
-![](density_plot.png)
 
 ### Wnioski
 
