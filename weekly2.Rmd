@@ -5,6 +5,17 @@ date: "11/30/2020"
 output: beamer_presentation
 ---
 
+
+```{bash}
+curl --compressed -o waqi-covid-2020.csv   https://aqicn.org/data-platform/covid19/report/19780-07745f90/2020
+curl --compressed -o waqi-covid-2019Q1.csv https://aqicn.org/data-platform/covid19/report/19780-07745f90/2019Q1
+curl --compressed -o waqi-covid-2019Q2.csv https://aqicn.org/data-platform/covid19/report/19780-07745f90/2019Q2
+curl --compressed -o waqi-covid-2019Q3.csv https://aqicn.org/data-platform/covid19/report/19780-07745f90/2019Q3
+curl --compressed -o waqi-covid-2019Q4.csv https://aqicn.org/data-platform/covid19/report/19780-07745f90/2019Q4
+```
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, dev='cairo_pdf')
 library(XML)
