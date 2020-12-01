@@ -1,0 +1,14 @@
+---
+title: "todo"
+author: "Jakub Kozieł, Konstanty Kraszewski, Bartosz Sawicki"
+date: "12/1/2020"
+output: pdf_document
+---
+
+## TODO
+
+- slupki na mapie(moze jeden?)
+- miasta grid (dodac poprzednie lata na szaro i czerowna srednia)
+- miasta grid - srednia kroczaca
+- opisy osi na wszystkich wykresach
+- tytuly wykresow
