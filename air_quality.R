@@ -36,29 +36,34 @@ raw_data <- rbind(raw_data, read_csv("waqi-covid-2016H1.csv", skip = 4))
 
 raw_data %>% 
   filter(Country == "PL") %>%
-  filter(Specie == "co") %>% 
-  filter(City %in% c("Warsaw","Wrocław","Łódź","Gdańsk","Kraków"))%>% #nie mają wszystkich lat
+  filter(Specie == "no2") %>% 
+  filter(City %in% c("Warsaw","Wrocław","Łódź","Gdańsk","Kraków","Poznań"))%>% #nie mają wszystkich lat
   mutate(year = as.factor(year(Date))) %>%
   arrange(Date) %>%
   distinct() %>%
   select(-c(min,max,count,variance))%>%
   pivot_wider(names_from = City, values_from = median)-> pol_co_raw
 
-pol_co_rolling_raw <- cbind(pol_co_raw,frollmean(pol_co_raw[,5:9],n=7)) # 7 day rolling avarage
-colnames(pol_co_rolling_raw)[10:14] <- paste(colnames(pol_co_rolling_raw)[5:9],"_rolling")
-pol_co_rolling_raw %>% select(-(5:9)) -> pol_co_rolling
-colnames(pol_co_rolling)[5:9] <- colnames(pol_co_rolling_raw)[5:9]
+pol_co_rolling_raw <- cbind(pol_co_raw,frollmean(pol_co_raw[,5:10],n=7)) # 7 day rolling avarage
+colnames(pol_co_rolling_raw)[11:16] <- paste(colnames(pol_co_rolling_raw)[5:10],"_rolling")
+pol_co_rolling_raw %>% select(-(5:10)) -> pol_co_rolling
+colnames(pol_co_rolling)[5:10] <- colnames(pol_co_rolling_raw)[5:10]
 
+Sys.setlocale("LC_TIME", "C") # months in English
 pol_co_rolling %>%
-  pivot_longer(cols = 5:9,names_to= "City", values_to = "median") %>%
+  pivot_longer(cols = 5:10,names_to= "City", values_to = "median") %>%
   mutate(day = as.Date(format(Date, format = "%d-%m"),format = "%d-%m"))%>%
   filter(day<as.Date("01.07.2020", format = "%d.%m.%Y"))%>%
   ggplot(aes(x = day)) + 
   geom_line(aes(y = median, group = year, color = year)) +
-  facet_wrap(~City) + 
-  ggtitle("CO concentration in polish cities") +
-  scale_color_manual(values = c("gray","gray","gray","gray","steelblue")) +
-  theme_bw()
+  geom_vline(xintercept = as.Date("04.03.2020",format = "%d.%m.%Y"), color = "red") +# pacjent zero w PL
+  #annotate("text", x = as.Date("14.04.2020",format = "%d.%m.%Y"), y = 30, label = "Patient 'zero' in Poland", size = 3) +
+  facet_wrap(~City) +
+  ggtitle("NO2 in polish cities (red line - patient \'zero\' diagnosed in Poland)") +
+  scale_color_manual(values = c("gray87","gray77","gray57","gray37","steelblue")) +
+  theme_bw() + 
+  ylab("7 day rolling avarage of daily concentration")+
+  xlab("Date")
 
 
 
