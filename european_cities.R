@@ -7,6 +7,7 @@ library(rjson)
 library(data.table)
 library(maps)
 library(readr)
+library(RColorBrewer)
 
 
 
@@ -31,6 +32,7 @@ raw_data %>%
              scale_y_continuous(limits = c(0,100))
   
 
+brewer.pal(3,"PRGn")
 
 covid_df <- read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>% mutate(Date = as.Date(date))
 raw_data %>%
@@ -41,11 +43,21 @@ raw_data %>%
   filter(City %in% c("Berlin","Barcelona","Moscow","Milan","London", "Warsaw")) %>%
   ggplot(aes(y = median,x = stringency_index)) +
   facet_wrap(~City, nrow = 2)+
-  geom_jitter(size = 0.5) + 
+  geom_jitter(color = "#7FBF7B") + 
   ggtitle("NO2 in chosen european cities by Stringency Index in 2020")+
   ylab("Daily median of NO2 concentration") + 
-  xlab("Stringency Index")
-  scale_size_manual(values = c("One day in 2020"))+
-  theme_bw()
+  xlab("Stringency Index") +
+  theme_bw(base_family = "Crimson Pro",
+           base_size = 18)#+ 
+#  theme(axis.title = element_text(size=14),
+        # axis.text = element_text(size = 12),
+        # plot.title = element_text(size = 18))
 
+# The OxCGRT project calculate a Government Stringency Index, a composite measure of governments' response metrics.
+# The nine metrics used to calculate the Government Stringency Index are:
+# school closures; workplace closures; cancellation of public events; restrictions on public gatherings; closures of public transport;
+# stay-at-home requirements; public information campaigns; restrictions on internal movements; and international travel controls.
+# A higher score indicates a stricter government response (i.e. 100 = strictest response). If policies vary at the subnational level,
+# the index is shown as the response level of the strictest sub-region.
+# We've checked if Index value corelates with air pollution in Europe.
 

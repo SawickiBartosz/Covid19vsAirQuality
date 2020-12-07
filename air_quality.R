@@ -11,7 +11,7 @@ library(data.table)
 library(maps)
 library(readr)
 library(data.table)
-
+library(RColorBrewer)
 
 # dane z aqcin.org
 
@@ -33,6 +33,8 @@ raw_data <- rbind(raw_data, read_csv("waqi-covid-2019Q2.csv", skip = 4))
 raw_data <- rbind(raw_data, read_csv("waqi-covid-2018H1.csv", skip = 4))
 raw_data <- rbind(raw_data, read_csv("waqi-covid-2017H1.csv", skip = 4))
 raw_data <- rbind(raw_data, read_csv("waqi-covid-2016H1.csv", skip = 4))
+
+brewer.pal(3,"PRGn")
 
 raw_data %>% 
   filter(Country == "PL") %>%
@@ -59,12 +61,14 @@ pol_co_rolling %>%
   geom_vline(xintercept = as.Date("04.03.2020",format = "%d.%m.%Y"), color = "red") +# pacjent zero w PL
   #annotate("text", x = as.Date("14.04.2020",format = "%d.%m.%Y"), y = 30, label = "Patient 'zero' in Poland", size = 3) +
   facet_wrap(~City) +
-  ggtitle("NO2 in polish cities (red line - patient \'zero\' diagnosed in Poland)") +
-  scale_color_manual(values = c("gray87","gray77","gray57","gray37","steelblue")) +
-  theme_bw() + 
+  ggtitle("NO2 in polish cities", subtitle = "red line - patient \'zero\' diagnosed in Poland") +
+  scale_color_manual(values = c("gray87","gray77","gray57","gray37","#7FBF7B")) +
+  theme_bw(base_family = "Crimson Pro",
+           base_size = 18)+
   ylab("7 day rolling avarage of daily concentration")+
   xlab("Date")
 
+# Air pollution in Poland was lesser than in previous years, but it is rather an effect of a trend than a result of COVID-19 pandemic. 
 
 
 raw_data %>% 
