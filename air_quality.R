@@ -39,8 +39,8 @@ brewer.pal(3,"PRGn")
 raw_data %>% 
   filter(Country == "PL") %>%
   filter(Specie == "no2") %>% 
-  filter(City %in% c("Warsaw","Wrocław","Łódź","Gdańsk","Kraków","Poznań"))%>% #nie mają wszystkich lat
-  mutate(year = as.factor(year(Date))) %>%
+  filter(City %in% c("Warsaw","Wrocław","Łódź","Gdańsk","Kraków","Poznań"))%>% 
+  mutate(year = as.character(year(Date))) %>%
   arrange(Date) %>%
   distinct() %>%
   select(-c(min,max,count,variance))%>%
@@ -61,12 +61,15 @@ pol_co_rolling %>%
   geom_vline(xintercept = as.Date("04.03.2020",format = "%d.%m.%Y"), color = "red") +# pacjent zero w PL
   #annotate("text", x = as.Date("14.04.2020",format = "%d.%m.%Y"), y = 30, label = "Patient 'zero' in Poland", size = 3) +
   facet_wrap(~City) +
-  ggtitle("NO2 in polish cities", subtitle = "red line - patient \'zero\' diagnosed in Poland") +
-  scale_color_manual(values = c("gray87","gray77","gray57","gray37","#7FBF7B")) +
+  ggtitle("NO2 in polish cities") +
+  scale_color_manual(values = c("gray67","gray67","gray67","gray67","#7FBF7B")) +
   theme_bw(base_family = "Crimson Pro",
            base_size = 18)+
   ylab("7 day rolling avarage of daily concentration")+
-  xlab("Date")
+  xlab("Date") +
+  labs(caption = "red line - patient \'zero\' diagnosed in Poland \ngreen line - 2020   grey line - previous years")+
+  theme(legend.position = "none",
+        plot.caption.position = "plot")
 
 # Air pollution in Poland was lesser than in previous years, but it is rather an effect of a trend than a result of COVID-19 pandemic. 
 
