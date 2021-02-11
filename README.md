@@ -1,2 +1,3 @@
-# Data Visualization Techniqes - Project 2 
-# COVID - 19 visualization
+# COVID - 19 vs Air quality visualization
+
+
